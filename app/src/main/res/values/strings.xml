@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">MyNotes</string>
-    <string name="notes">Заметки</string>
+    <string name="back">Назад</string>
+    <string name="app_name">Заметки</string>
 </resources>

@@ -11,12 +11,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        NotesFragment notesFragment = new NotesFragment();
-
-        getSupportFragmentManager()
+        if (savedInstanceState == null) getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, notesFragment)
+                .add(R.id.notes_container, new NotesFragment())
+                //.addToBackStack("")
                 .commit();
-
     }
+
 }
