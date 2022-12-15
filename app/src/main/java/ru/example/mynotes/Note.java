@@ -1,77 +1,84 @@
 package ru.example.mynotes;
 
+
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.RequiresApi;
-
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Random;
 
+public class Note implements /*Serializable*/ Parcelable {
 
-public class Note implements Parcelable {
     private static final Random random = new Random();
+    private static ArrayList<Note> notes;
 
-    private static Note[] notes;
+    private static int counter;
 
+    private int id;
     private String title;
     private String description;
-    private LocalDateTime date;
+    private LocalDateTime creationDate;
 
-    public Note(String description, String title, LocalDateTime date) {
-        this.description = description;
+
+    public void setTitle(String title) {
         this.title = title;
-        this.date = date;
-    }
-
-    public static Note[] getNotes() {
-        return notes;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public static void setNotes(Note[] notes) {
-        Note.notes = notes;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+
+    public int getId() {
+        return id;
+    }
+
+    public static ArrayList<Note> getNotes(){
+        return notes;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    {
+        id = ++counter;
     }
 
     static {
-        notes = new Note[10];                             // инициализатор
-        for (int i = 0; i < notes.length; i++) {
-            notes[i] = Note.getNote(i);
+        notes = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            notes.add(Note.getNote(i));
         }
     }
-    public static Note getNote(int index) {               //фабричный метод, создает объект
+
+    public Note(String title, String description, LocalDateTime creationDate) {
+        this.title = title;
+        this.description = description;
+        this.creationDate = creationDate;
+    }
+
+    @SuppressLint("DefaultLocale")
+    public static Note getNote(int index){
         String title = String.format("Заметка %d", index);
         String description = String.format("Описание заметки %d", index);
-        LocalDateTime date = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            date = LocalDateTime.now().plusDays(-random.nextInt(5));
-        }
-        return new Note(title,description,date);
+        LocalDateTime creationDate = LocalDateTime.now().plusDays(-random.nextInt(5));
+        return new Note(title, description, creationDate);
     }
 
     @Override
@@ -80,10 +87,16 @@ public class Note implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int flags) {
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(getId());
         parcel.writeString(getTitle());
         parcel.writeString(getDescription());
-        parcel.writeSerializable(getDate());
+    }
+
+    protected Note(Parcel parcel){
+        id = parcel.readInt();
+        title = parcel.readString();
+        description = parcel.readString();
     }
 
     public static final Creator<Note> CREATOR = new Creator<Note>() {
@@ -91,15 +104,13 @@ public class Note implements Parcelable {
         public Note createFromParcel(Parcel parcel) {
             return new Note(parcel);
         }
+
         @Override
-        public Note[] newArray(int size) {
-            return new Note[size];
+        public Note[] newArray(int i) {
+            return new Note[i];
         }
     };
 
-    protected Note(Parcel parcel){
-        title = parcel.readString();
-        description = parcel.readString();
-        date = (LocalDateTime)parcel.readSerializable();
-    }
+
 }
+
